@@ -1,20 +1,44 @@
-import { AppDataSource } from "./data-source"
-import { User } from "./entity/User"
+import { AppDataSource } from "./data-source";
+import { User } from "./entity/User";
+import { Session } from "./entity/Session";
 
-AppDataSource.initialize().then(async () => {
+AppDataSource.initialize()
+  .then(async () => {
+    //create a session
+    const sessionRepository = AppDataSource.getRepository(Session);
+    // const session = new Session();
+    // session.title = "Switching careers to tech";
+    // session.timeOnly = "09:30:00";
+    // session.dateOnly = "2023-01-03";
+    // session.durationMinutes = 30;
+    // session.price = 50.0;    
 
-    // console.log("Inserting a new user into the database...")
-    // const user = new User()
-    // user.firstName = "Timber"
-    // user.lastName = "Saw"
-    // user.age = 25
-    // await AppDataSource.manager.save(user)
-    // console.log("Saved a new user with id: " + user.id)
+    // await sessionRepository.save(session);
+    // console.log("Session has been saved");
 
-    // console.log("Loading users from the database...")
-    // const users = await AppDataSource.manager.find(User)
-    // console.log("Loaded users: ", users)
+    //list all sessions
+    const savedSession = await sessionRepository.find();
+    console.log("All sessions from the db: ", savedSession);
 
-    // console.log("Here you can setup and run express / fastify / any other framework.")
+    // //get one session for a user
+    // const firstSession = await sessionRepository.findOneBy({
+    //   id: 1,
+    // });
+    // console.log("First session from the db: ", firstSession);
 
-}).catch(error => console.log(error))
+    //updating the session for a user
+    // const sessionToUpdate = await sessionRepository.findOneBy({
+    //   id: 4,
+    // });
+    // sessionToUpdate.title = "Building your first MVP";
+    // sessionToUpdate.durationMinutes = 40;
+    // sessionToUpdate.price = 30.0;
+    // await sessionRepository.save(sessionToUpdate);
+
+    //delete a session
+    // const sessionToRemove = await sessionRepository.findOneBy({
+    //   id: 7,
+    // });
+    // await sessionRepository.remove(sessionToRemove);
+  })
+  .catch((error) => console.log(error));
