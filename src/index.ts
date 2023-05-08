@@ -1,44 +1,53 @@
+import { Request, Response } from "express";
 import { AppDataSource } from "./data-source";
-import { User } from "./entity/User";
 import { Session } from "./entity/Session";
+import * as express from "express";
 
 AppDataSource.initialize()
-  .then(async () => {
-    //create a session
-    const sessionRepository = AppDataSource.getRepository(Session);
-    // const session = new Session();
-    // session.title = "Switching careers to tech";
-    // session.timeOnly = "09:30:00";
-    // session.dateOnly = "2023-01-03";
-    // session.durationMinutes = 30;
-    // session.price = 50.0;    
-
-    // await sessionRepository.save(session);
-    // console.log("Session has been saved");
-
-    //list all sessions
-    const savedSession = await sessionRepository.find();
-    console.log("All sessions from the db: ", savedSession);
-
-    // //get one session for a user
-    // const firstSession = await sessionRepository.findOneBy({
-    //   id: 1,
-    // });
-    // console.log("First session from the db: ", firstSession);
-
-    //updating the session for a user
-    // const sessionToUpdate = await sessionRepository.findOneBy({
-    //   id: 4,
-    // });
-    // sessionToUpdate.title = "Building your first MVP";
-    // sessionToUpdate.durationMinutes = 40;
-    // sessionToUpdate.price = 30.0;
-    // await sessionRepository.save(sessionToUpdate);
-
-    //delete a session
-    // const sessionToRemove = await sessionRepository.findOneBy({
-    //   id: 7,
-    // });
-    // await sessionRepository.remove(sessionToRemove);
+  .then(() => {
+    console.log("Data Source has been initialized!");
   })
-  .catch((error) => console.log(error));
+  .catch((err) => {
+    console.error("Error during Data Source initialization:", err);
+  });
+
+const app = express();
+app.use(express.json());
+
+app.get("/sessions", async function (req: Request, res: Response) {
+  const sessions = await AppDataSource.getRepository(Session).find()
+  res.json(sessions)
+})
+
+app.get("/sessions/:id", async function (req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const results = await AppDataSource.getRepository(Session).findOneBy({
+      id: id
+  })
+  return res.send(results)
+})
+
+app.post("/sessions", async function (req: Request, res: Response) {
+  const sessions = await AppDataSource.getRepository(Session).create(req.body)
+  const results = await AppDataSource.getRepository(Session).save(sessions)
+  return res.send(results)
+})
+
+app.put("/sessions/:id", async function (req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const session = await AppDataSource.getRepository(Session).findOneBy({
+      id: id,
+  })
+  AppDataSource.getRepository(Session).merge(session, req.body)
+  const results = await AppDataSource.getRepository(Session).save(session)
+  return res.send(results)
+})
+
+app.delete("/sessions/:id", async function (req: Request, res: Response) {
+  const results = await AppDataSource.getRepository(Session).delete(req.params.id)
+  return res.send(results)
+})
+
+app.listen(3000)
+
+
